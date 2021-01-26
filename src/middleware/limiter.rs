@@ -3,32 +3,32 @@
 // This software is released under the MIT License.
 // https://opensource.org/licenses/MIT
 
-use std::{cell::{Cell, RefCell}, mem::MaybeUninit, rc::Rc, sync::{Arc, Mutex}};
+use std::{sync::{Arc, Mutex}};
 
 /**
  * Limiter Middleware
  * Time based branch limiter, for WASM modules. 
  */
 
-use wasmer::{FunctionMiddleware, FunctionType, LocalFunctionIndex, MiddlewareError, MiddlewareReaderState, ModuleMiddleware};
+use wasmer::{FunctionMiddleware, LocalFunctionIndex, MiddlewareError, MiddlewareReaderState, ModuleMiddleware};
 use wasmer_vm::ModuleInfo;
-use wasmer_types::FunctionIndex;
+use wasmer_types::{FunctionIndex, ImportIndex};
 use wasmer::wasmparser::{Operator, Type, TypeOrFuncType};
 
-use crate::transformer::import::transform_add_import;
+use crate::constants;
+
+//use crate::transformer::import::transform_add_import;
 
 type RefCheckfun = Arc<Mutex<Option<FunctionIndex>>>;
 
 #[derive(Debug)]
 pub struct Limiter {
-    checkfun: (String, String),
     checkfun_index: RefCheckfun
 }
 
 impl Limiter {
-    pub fn new(check: &(&str, &str)) -> Self {
+    pub fn new() -> Self {
         return Limiter {
-            checkfun: (String::from(check.0), String::from(check.1)),
             checkfun_index: Arc::new(Mutex::new(Option::None))
         };
     }
@@ -42,9 +42,18 @@ impl ModuleMiddleware for Limiter {
     }
 
     fn transform_module_info(&self, info: &mut ModuleInfo) {
-        let ftype = FunctionType::new(vec![], vec![wasmer::Type::I32]);
-        *self.checkfun_index.lock().unwrap() =  Option::Some(transform_add_import(info, self.checkfun.clone(), ftype));
-        //info.imports.insert(key, value)
+        for f in info.imports.iter() {
+            if let ImportIndex::Function(index) = f.1 {
+                if constants::FUNCTION_CHECKTIMEOUT.0.eq(&f.0.0) && constants::FUNCTION_CHECKTIMEOUT.1.eq(&f.0.1) {
+                    *self.checkfun_index.lock().unwrap() = Option::Some(*index);
+                    println!("{:?}", index);
+                }
+            }
+        }
+
+        if let Option::None = *self.checkfun_index.lock().unwrap() {
+            println!("Error")
+        }
     }
 }
 

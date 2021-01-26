@@ -15,6 +15,7 @@ mod tests {
 mod middleware;
 mod vm;
 mod transformer;
+mod constants;
 
 #[cfg(test)]
 mod test;

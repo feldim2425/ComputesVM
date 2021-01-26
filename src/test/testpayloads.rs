@@ -7,13 +7,13 @@ use wasmer::wat2wasm;
 
 use crate::vm::computer::VmInstance;
 
-const wasm1 : &[u8; 135] = br#"
+const wasm1 : &'static [u8] = br#"
 (module
     (type $run_t (func (param) (result)))
     (func $run (type $run_t)
-        (loop )
+       
     )
-    (export "run" (func $run))
+    (export "run" (func $run)) 
 )
 "#;
 
