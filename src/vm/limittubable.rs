@@ -1,11 +1,11 @@
 // Copyright (c) 2021 feldim2425
-// 
+//
 // This software is released under the MIT License.
 // https://opensource.org/licenses/MIT
 
 use std::{ptr::NonNull, sync::Arc};
 
-use wasmer::{MemoryError, MemoryType, Pages, TableType, Tunables, vm};
+use wasmer::{vm, MemoryError, MemoryType, Pages, TableType, Tunables};
 use wasmer_vm::{MemoryStyle, TableStyle, VMMemoryDefinition, VMTableDefinition};
 
 pub struct LimitingTunables<T: Tunables> {
@@ -13,10 +13,9 @@ pub struct LimitingTunables<T: Tunables> {
     base: T,
 }
 
-
-impl <T: Tunables>  LimitingTunables<T> {
+impl<T: Tunables> LimitingTunables<T> {
     pub fn new(base: T, limit: Pages) -> Self {
-        Self { limit, base }
+        return Self { limit, base }
     }
 
     fn adjust_memory(&self, requested: &MemoryType) -> MemoryType {

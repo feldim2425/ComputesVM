@@ -26,9 +26,9 @@ pub struct Limiter {
 }
 
 impl Limiter {
-    pub fn new(check: &(String, String)) -> Self {
+    pub fn new(check: &(&str, &str)) -> Self {
         return Limiter {
-            checkfun: check.clone(),
+            checkfun: (String::from(check.0), String::from(check.1)),
             checkfun_index: Arc::new(Mutex::new(Option::None))
         };
     }
@@ -43,7 +43,7 @@ impl ModuleMiddleware for Limiter {
 
     fn transform_module_info(&self, info: &mut ModuleInfo) {
         let ftype = FunctionType::new(vec![], vec![wasmer::Type::I32]);
-        *self.checkfun_index.lock().unwrap() = Option::Some(transform_add_import(info, self.checkfun.clone(), ftype));
+        *self.checkfun_index.lock().unwrap() =  Option::Some(transform_add_import(info, self.checkfun.clone(), ftype));
         //info.imports.insert(key, value)
     }
 }
