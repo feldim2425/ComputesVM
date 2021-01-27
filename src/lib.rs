@@ -5,10 +5,7 @@
 
 
 mod middleware;
-mod vm;
+pub mod vm;
 mod transformer;
 mod constants;
 mod errors;
-
-#[cfg(test)]
-mod test;

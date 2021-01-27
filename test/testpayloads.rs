@@ -5,7 +5,7 @@
 
 use wasmer::wat2wasm;
 
-use crate::vm::computer::VmInstance;
+use computes_vm::vm::computer::VmInstance;
 
 const wasm1 : &'static [u8] = br#"
 (module
