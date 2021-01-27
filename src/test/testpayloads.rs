@@ -11,7 +11,7 @@ const wasm1 : &'static [u8] = br#"
 (module
     (type $run_t (func (param) (result)))
     (func $run (type $run_t)
-       
+       (loop (br 0))
     )
     (export "run" (func $run)) 
 )

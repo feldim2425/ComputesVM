@@ -3,6 +3,8 @@
 // This software is released under the MIT License.
 // https://opensource.org/licenses/MIT
 
+/// Name of the internal wasm module
 pub(crate) const INTERNAL_WASM_MODULE: &'static str = "_computesvm_internal";
 
-pub(crate) const FUNCTION_CHECKTIMEOUT: (&'static str, &'static str) = (INTERNAL_WASM_MODULE, "_check_timeout");
+/// Name of the timeout check function
+pub(crate) const FUNCTION_CHECKTIMEOUT: &'static str = "_check_timeout";

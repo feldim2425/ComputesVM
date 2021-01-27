@@ -3,7 +3,7 @@
 // This software is released under the MIT License.
 // https://opensource.org/licenses/MIT
 
-use std::{error::Error, sync::Arc};
+use std::{error::Error, sync::{Arc, Mutex}};
 
 use crate::{constants, middleware::limiter::Limiter, transformer};
 
@@ -15,8 +15,20 @@ use wasmer_compiler_singlepass::Singlepass;
 
 use super::limittubable::LimitingTunables;
 
+
+//TODO: Remove this it is just for testing
+lazy_static!{
+    static ref c: Mutex<u8> = Mutex::new(0);
+}
+
+/**
+    A VmInstance represents one VM including, the compiler and runtime. 
+    Memory can be limited on a per VM basis.
+    The instance handles module loading, module communication, state saving/loading and native functionality
+*/
 pub struct VmInstance {
     store: Store,
+    
 }
 
 impl VmInstance {
@@ -47,6 +59,12 @@ impl VmInstance {
 
     fn _check_timeout() -> i32 {
         println!("Check timeout!");
+        let mut count = *c.lock().unwrap();
+        count += 1;
+        *c.lock().unwrap() = count;
+        if count > 10 {
+            return 1;
+        }
         return 0;
     }
 
@@ -56,8 +74,8 @@ impl VmInstance {
 
         let module = Module::new(&self.store, tresult.0)?;
         let import_obj = imports! {
-            constants::FUNCTION_CHECKTIMEOUT.0 => {
-                constants::FUNCTION_CHECKTIMEOUT.1 => Function::new_native(&self.store, Self::_check_timeout)
+            constants::INTERNAL_WASM_MODULE => {
+                constants::FUNCTION_CHECKTIMEOUT => Function::new_native(&self.store, Self::_check_timeout)
             }
         };
         let instance = Instance::new(&module, &import_obj)?;

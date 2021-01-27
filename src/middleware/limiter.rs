@@ -21,6 +21,12 @@ use crate::constants;
 
 type RefCheckfun = Arc<Mutex<Option<FunctionIndex>>>;
 
+/**
+    The Limiter is a middleware for Wasmer.
+    It injects a call to the timeout check function on critical branch instructions.
+    This way any function call can be forcefully stopped if the execution takes to long because of large loops.
+    The middleware only works if the import for the limiter function was added to the module beforehand.
+*/
 #[derive(Debug)]
 pub struct Limiter {
     checkfun_index: RefCheckfun
@@ -44,7 +50,7 @@ impl ModuleMiddleware for Limiter {
     fn transform_module_info(&self, info: &mut ModuleInfo) {
         for f in info.imports.iter() {
             if let ImportIndex::Function(index) = f.1 {
-                if constants::FUNCTION_CHECKTIMEOUT.0.eq(&f.0.0) && constants::FUNCTION_CHECKTIMEOUT.1.eq(&f.0.1) {
+                if constants::INTERNAL_WASM_MODULE.eq(&f.0.0) && constants::FUNCTION_CHECKTIMEOUT.eq(&f.0.1) {
                     *self.checkfun_index.lock().unwrap() = Option::Some(*index);
                     println!("{:?}", index);
                 }
@@ -71,8 +77,7 @@ impl FunctionMiddleware for LimiterFunction {
     ) -> Result<(), MiddlewareError> {
         if let Some(val) = *self.checkfun.lock().unwrap() {
             match operator {
-                Operator::Loop { .. } // loop headers are branch targets
-                | Operator::End // block ends are branch targets
+                Operator::End // block ends are branch targets
                 | Operator::Else // "else" is the "end" of an if branch
                 | Operator::Br { .. } // branch source
                 | Operator::BrTable { .. } // branch source
