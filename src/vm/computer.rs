@@ -5,13 +5,11 @@
 
 use std::{error::Error, sync::{Arc, Mutex}};
 
-use crate::{constants, middleware::limiter::Limiter, transformer};
+use crate::{constants, errors::WasmVmError, middleware::limiter::Limiter, transformer};
 
-use wasmer::{
-    imports, BaseTunables, CompilerConfig, Function, Instance, Module, NativeFunc, Pages, Store,
-    Target, JIT,
-};
+use wasmer::{BaseTunables, CompilerConfig, Function, Instance, JIT, Module, NativeFunc, Pages, RuntimeError, Store, Target, imports};
 use wasmer_compiler_singlepass::Singlepass;
+use lazy_static::lazy_static;
 
 use super::limittubable::LimitingTunables;
 
@@ -57,15 +55,14 @@ impl VmInstance {
 
     fn event_dispatch() {}
 
-    fn _check_timeout() -> i32 {
+    fn _check_timeout() {
         println!("Check timeout!");
         let mut count = *c.lock().unwrap();
         count += 1;
         *c.lock().unwrap() = count;
         if count > 10 {
-            return 1;
+            RuntimeError::raise(Box::new(WasmVmError::YieldTimeoutReached));
         }
-        return 0;
     }
 
     pub fn load_module(&mut self, data: impl AsRef<[u8]>) -> Result<(), Box<dyn Error>> {
@@ -82,7 +79,20 @@ impl VmInstance {
 
         let run_func: NativeFunc<(), ()> = instance.exports.get_native_function("run")?;
 
-        run_func.call()?;
+        let result = run_func.call();
+        if let Some(err) = result.err() {
+            match &err.downcast::<WasmVmError>() {
+                Ok(werr) => {
+                    if let WasmVmError::YieldTimeoutReached = werr {
+                        println!("Too long without yielding")
+                    }
+                }
+
+                Err(err) => {
+                    return Err(Box::new(err.clone()));
+                }
+            }
+        }
 
         return Ok(());
     }

@@ -13,7 +13,7 @@ use std::{sync::{Arc, Mutex}};
 use wasmer::{FunctionMiddleware, LocalFunctionIndex, MiddlewareError, MiddlewareReaderState, ModuleMiddleware};
 use wasmer_vm::ModuleInfo;
 use wasmer_types::{FunctionIndex, ImportIndex};
-use wasmer::wasmparser::{Operator, Type, TypeOrFuncType};
+use wasmer::wasmparser::{Operator};
 
 use crate::constants;
 
@@ -88,9 +88,9 @@ impl FunctionMiddleware for LimiterFunction {
                 => {
                     state.extend(&[
                         Operator::Call { function_index: val.as_u32() },
-                        Operator::If { ty: TypeOrFuncType::Type(Type::EmptyBlockType) },
+                        /*Operator::If { ty: TypeOrFuncType::Type(Type::EmptyBlockType) },
                         Operator::Unreachable,
-                        Operator::End
+                        Operator::End*/
                     ])
                 }
 

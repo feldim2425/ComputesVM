@@ -3,14 +3,12 @@
 // This software is released under the MIT License.
 // https://opensource.org/licenses/MIT
 
-#[macro_use]
-extern crate lazy_static;
-
 
 mod middleware;
 mod vm;
 mod transformer;
 mod constants;
+mod errors;
 
 #[cfg(test)]
 mod test;
