@@ -52,7 +52,6 @@ impl ModuleMiddleware for Limiter {
             if let ImportIndex::Function(index) = f.1 {
                 if constants::INTERNAL_WASM_MODULE.eq(&f.0.0) && constants::FUNCTION_CHECKTIMEOUT.eq(&f.0.1) {
                     *self.checkfun_index.lock().unwrap() = Option::Some(*index);
-                    println!("{:?}", index);
                 }
             }
         }

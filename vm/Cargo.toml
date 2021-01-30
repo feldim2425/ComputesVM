@@ -1,0 +1,27 @@
+[package]
+name = "computes-vm"
+version = "0.1.0"
+authors = ["feldim2425"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[[test]]
+name = "computes_tests"
+path = "test/mod.rs"
+
+[lib]
+name = "computes_vm"
+path = "src/lib.rs"
+
+[dependencies]
+custom_error = "1.8.0"
+lazy_static = "1.4.0"
+walrus = "0.18.0"
+wasmer = "1.0.1"
+wasmer-compiler-singlepass = "1.0.1"
+wasmer-engine-jit = "1.0.1"
+wasmer-middlewares = "1.0.1"
+wasmer-runtime = "0.17.1"
+wasmer-types = "1.0.1"
+wasmer-vm = "1.0.1"

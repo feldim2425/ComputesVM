@@ -3,8 +3,10 @@
 // This software is released under the MIT License.
 // https://opensource.org/licenses/MIT
 
+use super::FnTimeoutCheck;
 
 #[derive(Debug,Copy,Clone)]
 pub struct VmConfig {
-    max_pages: usize
+    pub max_pages: u32,
+    pub check_fun: FnTimeoutCheck
 }

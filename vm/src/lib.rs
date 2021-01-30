@@ -8,4 +8,4 @@ mod middleware;
 pub mod vm;
 mod transformer;
 mod constants;
-mod errors;
+pub mod errors;
